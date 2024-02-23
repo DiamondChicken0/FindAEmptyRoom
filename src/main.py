@@ -97,10 +97,21 @@ for workspaces in spreadSheets:
             if weekdaysToCheck.__contains__(days):
                 listOfClassesOccuring.append(rows)
 
-for classes in listOfClassesOccuring:
-    print(classes[6])
+listOfClassesOccuring.pop(0)
 
-listOfRooms.sort()
+for i in range(len(listOfClassesOccuring)):
+    classTimeString = str(listOfClassesOccuring[i][6])
+
+    classStartH = classTimeString[0:classTimeString.index(':')]
+    classStartM = classTimeString[classTimeString.index(':')+1:classTimeString.index(' ')]
+    classStartAM = True if (classTimeString[classTimeString.index(' ')+1:classTimeString.index(' ', classTimeString.index(' ') + 1)] == "AM") else False
+
+    classEndH = classTimeString[classTimeString.index('-')+2:classTimeString.index(':',classTimeString.index('-'))]
+    classEndM = classTimeString[classTimeString.index(':', classTimeString.index('-'))+1:classTimeString.index(' ', classTimeString.index(':', classTimeString.index('-')))]
+    classEndAM = True if classTimeString.find("AM", classTimeString.index('-')) != -1 else False
+
+
+
 
 
 
