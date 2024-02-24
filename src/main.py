@@ -5,28 +5,36 @@
 import os
 import csv
 
-def findFiles():
+#5:30PM = 17.3
+def convertTo24Hour(hour,minute,AM):
+    return float(int(hour) + (int(minute)*0.01) + (0 if AM or int(hour) == 12 else 12))
+
+def findFiles(verbose):
     rootDirectoryItems = os.listdir(os.path.dirname(os.path.realpath(__file__)))
     rootDirectory = os.path.dirname(os.path.realpath(__file__))
 
     listOfSheets = []
     if rootDirectoryItems.__contains__("csvs"):
-        print("Directory found!")#
+        if verbose:
+            print("Directory found!\n")
         csvsDirectory = os.path.join(rootDirectory, "csvs")
         for csvFile in os.listdir(csvsDirectory):
-            print("Loading: " + csvFile)#
+            if verbose:
+                print("Loading: " + csvFile)
             if csvFile[-4:] == '.csv':
                 listOfSheets.append(csv.reader(open(os.path.join(csvsDirectory, csvFile)))) # encoding='cp1252'))) might be necessary, idk
-        print("\nAll csv files loaded!")#
+        if verbose:
+            print("\nAll csv files loaded!")
 
         return listOfSheets
 
     else:
         print("Directory was not found, please ensure that the file with the .csv(s) is named csvs")
 
-spreadSheets = findFiles()
 
-print("~~~~~~~ Find a empty room ~~~~~~~")
+spreadSheets = findFiles(True)
+
+print("\n~~~~~~~ Find a empty room ~~~~~~~")
 
 # Monday    M | 0
 # Tuesday   T | 1
@@ -44,12 +52,12 @@ weekdaysToCheck = ["M" if weekdayRange.__contains__("M") else "X", "T" if weekda
                    "W" if weekdayRange.__contains__("W") else "X", "R" if weekdayRange.__contains__("R") else "X",
                    "F" if weekdayRange.__contains__("F") else "X"]
 
-startTimeH = -1
-startTimeM = -1
+startTimeH  = -1
+startTimeM  = -1
 startTimeAM = True
 
-endTimeH = -1
-endTimeM = -1
+endTimeH  = -1
+endTimeM  = -1
 endTimeAM = True
 
 while (startTimeH < 1 or startTimeH > 12 or startTimeM < 0 or startTimeM > 59):
@@ -67,8 +75,8 @@ while (startTimeH < 1 or startTimeH > 12 or startTimeM < 0 or startTimeM > 59):
 
 while (endTimeH < 1 or endTimeH > 12 or endTimeM < 0 or endTimeM > 59):
     endTimeAM = input("\nIs the ending time in the morning (Y/N)\n")
-    endTimeH = int(input("\nWhat hour does the event end\n"))  # fix so the input is defended against words
-    endTimeM = int(input("\nWhat minute does the event end (30 minute increments work best)\n"))
+    endTimeH  = int(input("\nWhat hour does the event end\n"))  # fix so the input is defended against words
+    endTimeM  = int(input("\nWhat minute does the event end (30 minute increments work best)\n"))
 
     if (endTimeAM.upper() == "Y"):
         endTimeAM = True
@@ -76,6 +84,15 @@ while (endTimeH < 1 or endTimeH > 12 or endTimeM < 0 or endTimeM > 59):
         endTimeAM = False
     else:
         endTimeH = -1;
+
+startTime = convertTo24Hour(startTimeH, startTimeM, startTimeAM)
+endTime   = convertTo24Hour(endTimeH, endTimeM, endTimeAM)
+
+#Catch a reverse order of start/ end times
+if startTime > endTime:
+    temp = startTime
+    startTime = endTime
+    endTime = temp
 
 locationIndex = 7
 
@@ -88,7 +105,7 @@ for workspaces in spreadSheets:
             listOfRooms.append(rows[7])
 
 #Refresh the readers
-spreadSheets = findFiles()
+spreadSheets = findFiles(False)
 
 # second pass to grab classes that occur on the days needed
 for workspaces in spreadSheets:
@@ -100,24 +117,20 @@ for workspaces in spreadSheets:
 listOfClassesOccuring.pop(0)
 
 for i in range(len(listOfClassesOccuring)):
+    if i >= len(listOfClassesOccuring):
+        break
+
     classTimeString = str(listOfClassesOccuring[i][6])
 
-    classStartH = classTimeString[0:classTimeString.index(':')]
-    classStartM = classTimeString[classTimeString.index(':')+1:classTimeString.index(' ')]
+    classStartH  = classTimeString[0:classTimeString.index(':')]
+    classStartM  = classTimeString[classTimeString.index(':')+1:classTimeString.index(' ')]
     classStartAM = True if (classTimeString[classTimeString.index(' ')+1:classTimeString.index(' ', classTimeString.index(' ') + 1)] == "AM") else False
 
-    classEndH = classTimeString[classTimeString.index('-')+2:classTimeString.index(':',classTimeString.index('-'))]
-    classEndM = classTimeString[classTimeString.index(':', classTimeString.index('-'))+1:classTimeString.index(' ', classTimeString.index(':', classTimeString.index('-')))]
+    classEndH  = classTimeString[classTimeString.index('-')+2:classTimeString.index(':',classTimeString.index('-'))]
+    classEndM  = classTimeString[classTimeString.index(':', classTimeString.index('-'))+1:classTimeString.index(' ', classTimeString.index(':', classTimeString.index('-')))]
     classEndAM = True if classTimeString.find("AM", classTimeString.index('-')) != -1 else False
 
-
-
-
-
-
-
-
-
-
+    classStart = convertTo24Hour(classStartH, classStartM, classStartAM)
+    classEnd   = convertTo24Hour(classEndH, classEndM, classEndAM)
 
 print("End of program.")
