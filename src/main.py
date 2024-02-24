@@ -11,13 +11,13 @@ def findFiles():
 
     listOfSheets = []
     if rootDirectoryItems.__contains__("csvs"):
-        #print("Directory found!")
-        csvsDirectory = rootDirectoryItems.__getitem__(rootDirectoryItems.index("csvs"))
+        print("Directory found!")#
+        csvsDirectory = os.path.join(rootDirectory, "csvs")
         for csvFile in os.listdir(csvsDirectory):
-            #print("Loading: " + csvFile)
-            listOfSheets.append(csv.reader(open(rootDirectory + "/" + csvsDirectory + "/" + csvFile)))
-
-        #print("\nAll csv files loaded!")
+            print("Loading: " + csvFile)#
+            if csvFile[-4:] == '.csv':
+                listOfSheets.append(csv.reader(open(os.path.join(csvsDirectory, csvFile)))) # encoding='cp1252'))) might be necessary, idk
+        print("\nAll csv files loaded!")#
 
         return listOfSheets
 
@@ -53,7 +53,7 @@ endTimeM = -1
 endTimeAM = True
 
 while (startTimeH < 1 or startTimeH > 12 or startTimeM < 0 or startTimeM > 59):
-    startTimeAM = input("\nIs this in the morning (Y/N)\n")
+    startTimeAM = input("\nIs the starting time in the morning (Y/N)\n")
     startTimeH  = int(input("\nWhat hour does the event start\n")) #fix plz so the input is defended against words
     startTimeM  = int(input("\nWhat minute does the event start (30 minute increments work best)\n"))
 
@@ -66,7 +66,7 @@ while (startTimeH < 1 or startTimeH > 12 or startTimeM < 0 or startTimeM > 59):
 
 
 while (endTimeH < 1 or endTimeH > 12 or endTimeM < 0 or endTimeM > 59):
-    endTimeAM = input("\nIs this in the morning (Y/N)\n")
+    endTimeAM = input("\nIs the ending time in the morning (Y/N)\n")
     endTimeH = int(input("\nWhat hour does the event end\n"))  # fix so the input is defended against words
     endTimeM = int(input("\nWhat minute does the event end (30 minute increments work best)\n"))
 
@@ -119,3 +119,5 @@ for i in range(len(listOfClassesOccuring)):
 
 
 
+
+print("End of program.")
