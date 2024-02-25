@@ -1,5 +1,5 @@
-# Simon Ogorek
-# 2/22/24
+# Simon Ogorek & Mia Schultz 
+# 2/22/24 (.csvs last updated 2/22/24)
 # Find available room times given NJIT .scv file(s)
 
 import os
@@ -44,8 +44,8 @@ print("\n~~~~~~~ Find a empty room ~~~~~~~")
 
 weekdayRange = ""
 
-while (len(weekdayRange) < 1 or len(weekdayRange) > 5):
-    weekdayRange = input("\nType any amount of weekdays you would like to search for as MTWRF\n")
+while (len(weekdayRange) < 1):
+    weekdayRange = input("\nType a weekday you would like to search for as MTWRF\n")
     weekdayRange = weekdayRange.upper()
 
 weekdaysToCheck = ["M" if weekdayRange.__contains__("M") else "X", "T" if weekdayRange.__contains__("T") else "X",
@@ -104,7 +104,7 @@ for workspaces in spreadSheets:
         if rows[7] != " " and rows[7] != "" and not (listOfRooms.__contains__(rows[7])):
             listOfRooms.append(rows[7])
 
-#Refresh the readers
+# Refresh the readers
 spreadSheets = findFiles(False)
 
 # second pass to grab classes that occur on the days needed
@@ -116,11 +116,14 @@ for workspaces in spreadSheets:
 
 listOfClassesOccuring.pop(0)
 
-for i in range(len(listOfClassesOccuring)):
-    if i >= len(listOfClassesOccuring):
-        break
+# another pass to remove courses markes as closed
+for course in reversed(listOfClassesOccuring):
+    if course[8].capitalize().__contains__("Cancelled") or course[8].capitalize().__contains__("Closed"):
+        listOfClassesOccuring.remove(course)
 
-    classTimeString = str(listOfClassesOccuring[i][6])
+for course in reversed(listOfClassesOccuring):
+
+    classTimeString = str(course[6])
 
     classStartH  = classTimeString[0:classTimeString.index(':')]
     classStartM  = classTimeString[classTimeString.index(':')+1:classTimeString.index(' ')]
@@ -132,5 +135,28 @@ for i in range(len(listOfClassesOccuring)):
 
     classStart = convertTo24Hour(classStartH, classStartM, classStartAM)
     classEnd   = convertTo24Hour(classEndH, classEndM, classEndAM)
+
+    #Check if the start of the event clashes with the bounds of the class
+
+    if startTime >= classStart and startTime <= classEnd:
+        #listOfClassesOccuring.remove(course)
+        if listOfRooms.__contains__(course[7]):
+            listOfRooms.remove(course[7])
+        continue
+
+    #Check if the end of the event clashesd with the bounds of the class
+        
+    if endTime >= classStart and endTime <= classEnd:
+        #listOfClassesOccuring.remove(course)
+        if listOfRooms.__contains__(course[7]):
+            listOfRooms.remove(course[7])
+        continue
+
+listOfRooms.remove("Location")
+listOfRooms.sort()
+
+print("\nThe list of rooms that are empty at your given time is: \n")
+for room in listOfRooms:
+    print(room)
 
 print("End of program.")
