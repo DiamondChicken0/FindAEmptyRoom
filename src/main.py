@@ -118,7 +118,7 @@ listOfClassesOccuring.pop(0)
 
 # another pass to remove courses markes as closed
 for course in reversed(listOfClassesOccuring):
-    if course[8].capitalize().__contains__("Cancelled") or course[8].capitalize().__contains__("Closed"):
+    if course[8].capitalize().__contains__("Cancelled"):
         listOfClassesOccuring.remove(course)
 
 for course in reversed(listOfClassesOccuring):
